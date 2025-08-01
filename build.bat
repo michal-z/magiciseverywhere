@@ -6,8 +6,7 @@ set "NAME=magiciseverywhere"
 :: (D)ebug, (R)elease
 set CONFIG=D
 
-set CFLAGS=^
-/MP /Wall /fp:except- /fp:precise /nologo /I"src/precomp"
+set CFLAGS=/MP /Wall /std:c17 /fp:except- /fp:precise /nologo /I"src/precomp"
 
 if %CONFIG%==D set CFLAGS=%CFLAGS% /GS /Zi /Od /D"_DEBUG" /MTd /RTCs
 if %CONFIG%==R set CFLAGS=%CFLAGS% /GS- /O2 /Oi /Ot /Gy /MT /D"NDEBUG"
