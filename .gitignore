@@ -2,3 +2,6 @@
 *.pch
 *.lib
 *.exe
+
+!fmod.dll
+!fmod_vc.lib

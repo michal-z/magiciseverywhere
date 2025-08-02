@@ -7,7 +7,7 @@ set "NAME=magiciseverywhere"
 set CONFIG=D
 
 set CFLAGS=/MP /Wall /std:c17 /fp:except- /fp:precise /nologo /I"src/precomp" ^
-/wd4711
+/wd4711 /wd4255 /wd4505 /wd4820
 
 if %CONFIG%==D set CFLAGS=%CFLAGS% /GS /Zi /Od /D"_DEBUG" /MTd /RTCs
 if %CONFIG%==R set CFLAGS=%CFLAGS% /GS- /O2 /Oi /Ot /Gy /MT /D"NDEBUG"
@@ -41,7 +41,7 @@ if errorlevel 1 goto error
 cl.exe ^
 %CFLAGS% /Fp:"precomp.pch" /Fd:"precomp.pdb" /Fe:"%NAME%.exe" /Yu"precomp.h" "src\*.c" ^
 /link ^
-%LFLAGS% opengl32.lib precomp.lib /subsystem:CONSOLE
+%LFLAGS% opengl32.lib fmod_vc.lib precomp.lib /subsystem:CONSOLE
 if errorlevel 1 goto error
 
 if exist *.obj del *.obj
