@@ -65,13 +65,13 @@ static float update_frame_stats(HWND window, const char *name)
     header_refresh_time = previous_time;
   }
 
-  double time = get_time();
-  float delta_time = (float)(time - previous_time);
+  const double time = get_time();
+  const float delta_time = (float)(time - previous_time);
   previous_time = time;
 
   if ((time - header_refresh_time) >= 1.0) {
-    double fps = num_frames / (time - header_refresh_time);
-    double ms = (1.0 / fps) * 1000.0;
+    const double fps = num_frames / (time - header_refresh_time);
+    const double ms = (1.0 / fps) * 1000.0;
     char header[128];
     snprintf(header, sizeof(header), "[%.1f fps  %.3f ms] %s", fps, ms, name);
     SetWindowText(window, header);
@@ -93,15 +93,15 @@ void main(void)
     .lpszClassName = "magiciseverywhere",
   });
 
-  DWORD style = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
+  const DWORD style = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
 
-  int32_t winsize = GetSystemMetrics(SM_CYSCREEN) > 2048 ? 2048 : 1024;
+  const int32_t winsize = GetSystemMetrics(SM_CYSCREEN) > 2048 ? 2048 : 1024;
   RECT rect = { .left = 0, .top = 0, .right = winsize, .bottom = winsize };
   AdjustWindowRect(&rect, style, FALSE);
 
-  HWND hwnd = CreateWindowEx(0, "magiciseverywhere", "magiciseverywhere", style + WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, NULL, NULL);
+  const HWND hwnd = CreateWindowEx(0, "magiciseverywhere", "magiciseverywhere", style + WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, NULL, NULL);
 
-  HDC hdc = GetDC(hwnd);
+  const HDC hdc = GetDC(hwnd);
 
   PIXELFORMATDESCRIPTOR pfd = {
     .nSize = sizeof(PIXELFORMATDESCRIPTOR),
@@ -112,7 +112,7 @@ void main(void)
   };
   SetPixelFormat(hdc, ChoosePixelFormat(hdc, &pfd), &pfd);
 
-  HGLRC ogl_context = wglCreateContext(hdc);
+  const HGLRC ogl_context = wglCreateContext(hdc);
   wglMakeCurrent(hdc, ogl_context);
 
 #define GET_FUNC(type, name) \
@@ -143,10 +143,10 @@ void main(void)
 
 #undef GET_FUNC
 
-  printf("GL version: %s\n", (const char*)glGetString(GL_VERSION));
-  printf("GL renderer: %s\n", (const char*)glGetString(GL_RENDERER));
-  printf("GL vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-  printf("GLU version: %s\n", (const char*)gluGetString(GLU_VERSION));
+  printf("GL version: %s\n", (const char *)glGetString(GL_VERSION));
+  printf("GL renderer: %s\n", (const char *)glGetString(GL_RENDERER));
+  printf("GL vendor: %s\n", (const char *)glGetString(GL_VENDOR));
+  printf("GLU version: %s\n", (const char *)gluGetString(GLU_VERSION));
 
   {
     bool has_path_rendering = false;
@@ -156,9 +156,10 @@ void main(void)
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
 
     for (int32_t i = 0; i < num_extensions; ++i) {
-      const char* ext = (const char*)glGetStringi(GL_EXTENSIONS, i);
+      const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
       if (strcmp(ext, "GL_NV_path_rendering") == 0) has_path_rendering = true;
       if (strcmp(ext, "GL_NV_mesh_shader") == 0) has_mesh_shader = true;
+      if (has_path_rendering && has_mesh_shader) break;
     }
 
     if (has_path_rendering == false || has_mesh_shader == false) {
