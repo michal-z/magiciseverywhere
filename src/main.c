@@ -82,7 +82,7 @@ static float update_frame_stats(HWND window, const char *name)
   return delta_time;
 }
 
-int main(void)
+void main(void)
 {
   SetProcessDPIAware();
 
@@ -96,7 +96,6 @@ int main(void)
   DWORD style = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
 
   int32_t winsize = GetSystemMetrics(SM_CYSCREEN) > 2048 ? 2048 : 1024;
-
   RECT rect = { .left = 0, .top = 0, .right = winsize, .bottom = winsize };
   AdjustWindowRect(&rect, style, FALSE);
 
@@ -191,6 +190,4 @@ int main(void)
   wglMakeCurrent(hdc, NULL);
   wglDeleteContext(ogl_context);
   ReleaseDC(hwnd, hdc);
-
-  return 0;
 }
