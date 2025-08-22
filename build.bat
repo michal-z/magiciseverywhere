@@ -33,7 +33,7 @@ if exist "precomp.lib" del "precomp.lib"
 :: precomp
 ::
 if exist precomp.lib goto precomp_end
-cl.exe ^
+cl ^
 %CFLAGS% /c "src/precomp/precomp.c" ^
 /Fo:"precomp.lib" /Fp:"precomp.pch" /Fd:"precomp.pdb" /Yc"precomp.h"
 :precomp_end
@@ -41,7 +41,7 @@ cl.exe ^
 ::
 :: exe
 ::
-cl.exe ^
+cl ^
 %CFLAGS% /Fp:"precomp.pch" /Fd:"precomp.pdb" /Fe:"%NAME%.exe" /Yu"precomp.h" "src\*.c" ^
 /link ^
 %LFLAGS% opengl32.lib user32.lib gdi32.lib glu32.lib fmod_vc.lib precomp.lib /subsystem:CONSOLE
