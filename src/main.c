@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include "common.h"
 
 __declspec(dllexport) DWORD NvOptimusEnablement = 1;
 
@@ -167,8 +168,11 @@ void main(void)
       ExitProcess(0);
     }
   }
-
   wglSwapIntervalEXT(0);
+
+  ExperimentEntry ex = ex1_entry();
+
+  if (ex.init) ex.init();
 
   while (true) {
     MSG msg = {0};
@@ -178,7 +182,7 @@ void main(void)
       if (msg.message == WM_QUIT) break;
     } else {
       update_frame_stats(hwnd, "magiciseverywhere");
-      glClearBufferfv(GL_COLOR, 0, (float[]){ 0.2f, 0.4f, 0.8f, 1.0 });
+      if (ex.update) ex.update();
       SwapBuffers(hdc);
 
       if (glGetError() != GL_NO_ERROR) {
@@ -187,6 +191,7 @@ void main(void)
       }
     }
   }
+  if (ex.shutdown) ex.shutdown();
 
   wglMakeCurrent(hdc, NULL);
   wglDeleteContext(ogl_context);
