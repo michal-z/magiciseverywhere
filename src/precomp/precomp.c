@@ -12,7 +12,8 @@
 
 __declspec(dllexport) DWORD NvOptimusEnablement = 1;
 
-PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
+typedef BOOL (APIENTRYP PFNWGLSWAPINTERVALEXTPROC) (int interval);
+static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 
 PFNGLCLEARBUFFERFVPROC glClearBufferfv;
 PFNGLMATRIXLOADIDENTITYEXTPROC glMatrixLoadIdentityEXT;
@@ -34,7 +35,7 @@ PFNGLCREATESHADERPROGRAMVPROC glCreateShaderProgramv;
 PFNGLPROGRAMUNIFORMHANDLEUI64NVPROC glProgramUniformHandleui64NV;
 PFNGLUSEPROGRAMPROC glUseProgram;
 
-static LRESULT CALLBACK process_window_message(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+static LRESULT CALLBACK exn__process_window_message(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   switch (message) {
     case WM_DESTROY: {
@@ -51,7 +52,7 @@ static LRESULT CALLBACK process_window_message(HWND hwnd, UINT message, WPARAM w
   return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
-static double get_time(void)
+static double exn__get_time(void)
 {
   static LARGE_INTEGER start_counter;
   static LARGE_INTEGER frequency;
@@ -64,18 +65,18 @@ static double get_time(void)
   return (double)(counter.QuadPart - start_counter.QuadPart) / (double)frequency.QuadPart;
 }
 
-static float update_frame_stats(HWND window, const char *name)
+static float exn__update_frame_stats(HWND window, const char *name)
 {
   static double previous_time = -1.0;
   static double header_refresh_time = 0.0;
   static uint32_t num_frames = 0;
 
   if (previous_time < 0.0) {
-    previous_time = get_time();
+    previous_time = exn__get_time();
     header_refresh_time = previous_time;
   }
 
-  const double time = get_time();
+  const double time = exn__get_time();
   const float delta_time = (float)(time - previous_time);
   previous_time = time;
 
@@ -92,16 +93,16 @@ static float update_frame_stats(HWND window, const char *name)
   return delta_time;
 }
 
-static HWND hwnd;
-static HDC hdc;
-static HGLRC hglrc;
+static HWND exn__hwnd;
+static HDC exn__hdc;
+static HGLRC exn__hglrc;
 
-void exn_create_window(int w, int h, const char *name)
+void exn_create_window(int w, int h, const char *name, int swap_interval)
 {
   SetProcessDPIAware();
 
   RegisterClass(&(WNDCLASSA){
-    .lpfnWndProc = process_window_message,
+    .lpfnWndProc = exn__process_window_message,
     .hInstance = GetModuleHandle(NULL),
     .hCursor = LoadCursor(NULL, IDC_ARROW),
     .lpszClassName = name,
@@ -112,9 +113,9 @@ void exn_create_window(int w, int h, const char *name)
   RECT rect = { .left = 0, .top = 0, .right = w, .bottom = h };
   AdjustWindowRect(&rect, style, FALSE);
 
-  hwnd = CreateWindowEx(0, name, name, style + WS_VISIBLE, 0, 0, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, NULL, NULL);
+  exn__hwnd = CreateWindowEx(0, name, name, style + WS_VISIBLE, 0, 0, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, NULL, NULL);
 
-  hdc = GetDC(hwnd);
+  exn__hdc = GetDC(exn__hwnd);
 
   PIXELFORMATDESCRIPTOR pfd = {
     .nSize = sizeof(PIXELFORMATDESCRIPTOR),
@@ -123,10 +124,10 @@ void exn_create_window(int w, int h, const char *name)
     .iPixelType = PFD_TYPE_RGBA,
     .cColorBits = 24,
   };
-  SetPixelFormat(hdc, ChoosePixelFormat(hdc, &pfd), &pfd);
+  SetPixelFormat(exn__hdc, ChoosePixelFormat(exn__hdc, &pfd), &pfd);
 
-  hglrc = wglCreateContext(hdc);
-  wglMakeCurrent(hdc, hglrc);
+  exn__hglrc = wglCreateContext(exn__hdc);
+  wglMakeCurrent(exn__hdc, exn__hglrc);
 
 #define GET_FUNC(type, name) \
     name = (type)wglGetProcAddress(#name); \
@@ -175,26 +176,26 @@ void exn_create_window(int w, int h, const char *name)
     }
 
     if (has_path_rendering == false || has_mesh_shader == false) {
-      MessageBox(hwnd, "Sorry but this application requires modern NVIDIA GPU with latest graphics drivers.", "Unsupported GPU", MB_OK | MB_ICONSTOP);
+      MessageBox(exn__hwnd, "Sorry but this application requires modern NVIDIA GPU with latest graphics drivers.", "Unsupported GPU", MB_OK | MB_ICONSTOP);
       ExitProcess(0);
     }
   }
-  wglSwapIntervalEXT(0);
+  wglSwapIntervalEXT(swap_interval);
 }
 
 void exn_destroy_window(void)
 {
-  wglMakeCurrent(hdc, NULL);
-  wglDeleteContext(hglrc);
-  ReleaseDC(hwnd, hdc);
+  wglMakeCurrent(exn__hdc, NULL);
+  wglDeleteContext(exn__hglrc);
+  ReleaseDC(exn__hwnd, exn__hdc);
 }
 
 bool exn_update_window(const char *name)
 {
-  SwapBuffers(hdc);
+  SwapBuffers(exn__hdc);
 
   if (glGetError() != GL_NO_ERROR) {
-    MessageBox(hwnd, "OpenGL error detected.", "Error", MB_OK | MB_ICONERROR);
+    MessageBox(exn__hwnd, "OpenGL error detected.", "Error", MB_OK | MB_ICONERROR);
     return false;
   }
 
@@ -205,6 +206,6 @@ bool exn_update_window(const char *name)
     DispatchMessage(&msg);
     if (msg.message == WM_QUIT) running = false;
   }
-  update_frame_stats(hwnd, name);
+  exn__update_frame_stats(exn__hwnd, name);
   return running;
 }

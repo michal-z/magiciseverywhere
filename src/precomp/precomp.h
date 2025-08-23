@@ -4,8 +4,8 @@
 #define WINGDIAPI __declspec(dllimport)
 #include "GL/gl.h"
 #include "GL/glext.h"
-
-typedef int (APIENTRYP PFNWGLSWAPINTERVALEXTPROC) (int interval);
+#undef APIENTRY
+#undef WINGDIAPI
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,13 +18,11 @@ typedef int (APIENTRYP PFNWGLSWAPINTERVALEXTPROC) (int interval);
 #include "stb_perlin.h"
 #include "fmod.h"
 
-void exn_create_window(int w, int h, const char *name);
-void exn_destroy_window(void);
-bool exn_update_window(const char *name);
-
 #define NL "\n"
 
-extern PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
+void exn_create_window(int w, int h, const char *name, int swap_interval);
+void exn_destroy_window(void);
+bool exn_update_window(const char *name);
 
 extern PFNGLCLEARBUFFERFVPROC glClearBufferfv;
 extern PFNGLMATRIXLOADIDENTITYEXTPROC glMatrixLoadIdentityEXT;
