@@ -52,7 +52,7 @@ static LRESULT CALLBACK exn__process_window_message(HWND hwnd, UINT message, WPA
   return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
-static double exn__get_time(void)
+double exn_time(void)
 {
   static LARGE_INTEGER start_counter;
   static LARGE_INTEGER frequency;
@@ -72,11 +72,11 @@ static float exn__update_frame_stats(HWND window, const char *name)
   static uint32_t num_frames = 0;
 
   if (previous_time < 0.0) {
-    previous_time = exn__get_time();
+    previous_time = exn_time();
     header_refresh_time = previous_time;
   }
 
-  const double time = exn__get_time();
+  const double time = exn_time();
   const float delta_time = (float)(time - previous_time);
   previous_time = time;
 
